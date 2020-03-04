@@ -8,6 +8,7 @@ public class Pacman : MonoBehaviour
     public float speed = 8;
     private bool energized;
     public float delay = 3;
+    public ScoreManager scoreManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +33,7 @@ public class Pacman : MonoBehaviour
 
         if (other.gameObject.tag == "Pellet")
         {
+            scoreManager.AddScore(1);
             Destroy(other.gameObject);
         }
         else if(other.gameObject.tag == "Energizer")
