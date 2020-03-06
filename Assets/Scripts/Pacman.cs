@@ -46,7 +46,11 @@ public class Pacman : MonoBehaviour
             if (energized)
                 Destroy(other.gameObject);
             else
-                Destroy(gameObject);
+            {
+
+                var gameManager = GameObject.FindGameObjectsWithTag("Cube")[0].gameObject;
+                gameManager.SendMessage("pacmanHit");
+            }
 
         }
     }

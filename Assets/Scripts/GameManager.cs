@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
+using UnityEngine.SceneManagement;
 
 
 public class GameManager : MonoBehaviour
@@ -14,7 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject energizer;
     public GameObject ghosts;
     public GameObject ghost;
-
+    private int lives;
 
 
     // 0 - Empty
@@ -65,6 +64,8 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        lives = 1;
+    
         DontDestroyOnLoad(gameObject);
         walls = new GameObject("Walls");
         pellets = new GameObject("Pellets");
@@ -85,6 +86,7 @@ public class GameManager : MonoBehaviour
                     Ghost new_ghost = Instantiate(ghost, new Vector3(x, 1, z), Quaternion.identity, ghosts.transform).GetComponent<Ghost>();
                     new_ghost.i = i;
                     new_ghost.j = j;
+                    new_ghost.gameObject.tag = "Ghost";
 
                 }
                 else if (map[i, j] == 5)
@@ -99,6 +101,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+        if (ghosts != null && ghosts.transform.childCount == 0)
+        {
+            SceneManager.LoadScene("Status");
+        }
         
     }
 
@@ -116,6 +123,20 @@ public class GameManager : MonoBehaviour
         cube.GetComponent<MeshRenderer>().material.color = Color.blue;
     }
 
+    public void pacmanHit()
+    {
+
+        lives -= 1;
+        if (lives <= 0)
+        {
+            SceneManager.LoadScene("Status");
+        }
+    }
+
+    private void resetGhosts()
+    {
+      
+    }
 
 
 
