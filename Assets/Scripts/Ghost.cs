@@ -8,7 +8,8 @@ public class Ghost : MonoBehaviour
     private GameObject pacman;
 
     private float startTime;
-    private int i, j, ni, nj;
+    public int i, j;
+    private int ni, nj;
 
     public float speed = 3;
     public static readonly int[][] connected4 = new int[4][] { new int[2] { -1, 0 }, new int[2] { 1, 0 }, new int[2] { 0, -1 }, new int[2] { 0, 1 } };
@@ -16,11 +17,9 @@ public class Ghost : MonoBehaviour
     void Start()
     {
         startTime = Time.time;
-        i = 11;
-        j = 13;
-        ni = 11;
-        nj = 14;
-        transform.position = new Vector3(-4, 1, 0);
+        ni = i;
+        nj = j;
+        //transform.position = new Vector3(-4, 1, 0);
     }
 
 
