@@ -37,13 +37,10 @@ public class Pacman : MonoBehaviour {
             StartCoroutine (Energizer ());
         } else if (other.gameObject.tag == "Ghost") {
             if (energized) {
-                // Destroy (other.gameObject);
-                ;
-
+                Destroy (other.gameObject);
             } else {
-
                 var gameManager = GameObject.FindGameObjectsWithTag ("Cube") [0].gameObject;
-                // gameManager.SendMessage ("pacmanHit");
+                gameManager.SendMessage ("pacmanHit");
             }
 
         }
@@ -72,7 +69,9 @@ public class Pacman : MonoBehaviour {
 
     void colorGhosts (GameObject[] ghosts, Color color) {
         foreach (GameObject ghost in ghosts) {
-            ghost.GetComponent<MeshRenderer> ().material.color = color;
+            if (ghost != null) {
+                ghost.GetComponent<MeshRenderer> ().material.color = color;
+            }
         }
     }
 
