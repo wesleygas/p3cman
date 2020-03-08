@@ -57,18 +57,27 @@ public class Pacman : MonoBehaviour
 
     IEnumerator Energizer()
     {
+        AudioManager audioManager = FindObjectOfType<AudioManager>();
+        audioManager.Play("Energized");
+        audioManager.SetTempVolume("background", 0);
         GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Ghost");
         energized = true;
         foreach (GameObject ghost in ghosts)
         {
-            ghost.GetComponent<MeshRenderer>().material.color = Color.blue;
+            if (ghost != null)
+                ghost.GetComponent<MeshRenderer>().material.color = Color.blue;
         }
         yield return new WaitForSeconds(delay);
         energized = false;
         foreach (GameObject ghost in ghosts)
         {
-            ghost.GetComponent<MeshRenderer>().material.color = Color.white;
+            if (ghost != null)
+                ghost.GetComponent<MeshRenderer>().material.color = Color.white;
         }
+        
+        audioManager.Fade("Energized", 2, 0, true);
+        audioManager.Fade("background", 2, .2f, false);
+        
     }
 
 
