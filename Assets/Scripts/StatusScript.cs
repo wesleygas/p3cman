@@ -18,7 +18,7 @@ public class StatusScript : MonoBehaviour {
             if (lives > 0) {
                 gameObject.GetComponent<Text> ().text = "YOU WON!";
             } else {
-                gameObject.GetComponent<Text> ().text = "YOU LOST!";
+                gameObject.GetComponent<Text> ().text = "You're dead!";
             }
         }
     }

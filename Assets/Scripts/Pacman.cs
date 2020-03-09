@@ -31,9 +31,10 @@ public class Pacman : MonoBehaviour {
 
         if (other.gameObject.tag == "Pellet") {
             scoreManager.AddScore (1);
-            Destroy (other.gameObject);
+            Destroy(other.gameObject);
         } else if (other.gameObject.tag == "Energizer") {
             Destroy (other.gameObject);
+            scoreManager.AddScore(5);
             StartCoroutine (Energizer ());
         } else if (other.gameObject.tag == "Ghost") {
             if (energized) {
@@ -49,25 +50,29 @@ public class Pacman : MonoBehaviour {
     IEnumerator Energizer () {
 
         float steady = delay - blink * blinkRepetitions;
-
+        AudioManager audioManager = FindObjectOfType<AudioManager>();
+        audioManager.Play("Energized");
+        audioManager.SetTempVolume("background", 0f);
         GameObject[] ghosts = GameObject.FindGameObjectsWithTag ("Ghost");
         energized = true;
         if (steady > 0) {
-            colorGhosts (ghosts, Color.blue);
+            ColorGhosts (ghosts, Color.blue);
             yield return new WaitForSeconds (steady);
-            colorGhosts (ghosts, Color.white);
+            ColorGhosts (ghosts, Color.white);
         }
         for (var i = 0; i < blinkRepetitions; i++) {
-            colorGhosts (ghosts, Color.blue);
+            ColorGhosts (ghosts, Color.blue);
             yield return new WaitForSeconds (blink);
-            colorGhosts (ghosts, Color.white);
+            ColorGhosts (ghosts, Color.white);
             yield return new WaitForSeconds (blink);
         }
         energized = false;
+        audioManager.Fade("Energized", 2f, 0f, true);
+        audioManager.SetTempVolume("background", 2f);
         yield return null;
     }
 
-    void colorGhosts (GameObject[] ghosts, Color color) {
+    void ColorGhosts (GameObject[] ghosts, Color color) {
         foreach (GameObject ghost in ghosts) {
             if (ghost != null) {
                 ghost.GetComponent<MeshRenderer> ().material.color = color;

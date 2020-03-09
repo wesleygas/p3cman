@@ -22,7 +22,7 @@ public class AudioManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-        foreach(Sound s in sounds)
+        foreach (Sound s in sounds)
         {
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
@@ -59,10 +59,21 @@ public class AudioManager : MonoBehaviour
     public void Play(string name)
     {
         Sound sound = Find(name);
-        if(sound != null)
+        if (sound != null)
         {
+            sound.source.volume = sound.volume;
             sound.source.Play();
         }
+    }
+
+    public void Fade(string name, float duration, float target, bool kill)
+    {
+        Sound sound = Find(name);
+        if (sound != null)
+        {
+            StartCoroutine(StartFade(sound.source, target, duration, kill));
+        }
+        sound.volume = target;
     }
 
     public void SetPitch(string name, float pitch)
@@ -73,5 +84,30 @@ public class AudioManager : MonoBehaviour
             sound.pitch = pitch;
             sound.source.pitch = sound.pitch;
         }
+    }
+
+    public void SetTempVolume(string name, float volume)
+    {
+        Sound sound = Find(name);
+        if (sound != null)
+        {
+            sound.source.volume = sound.volume;
+        }
+    }
+
+    public static IEnumerator StartFade(AudioSource audioSource, float duration, float target, bool kill)
+    {
+        float currentTime = 0;
+        float start = audioSource.volume;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, target, currentTime / duration);
+            yield return null;
+        }
+        if (kill)
+            audioSource.Stop();
+        yield break;
     }
 }

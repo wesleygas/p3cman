@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
     private GameObject walls; // hold pillars
@@ -11,9 +12,11 @@ public class GameManager : MonoBehaviour {
     public GameObject energizer;
     public GameObject ghosts;
     public GameObject ghost;
+    public GameObject infoText;
     public int lives;
     public int defaultLives;
     private bool loaded;
+    private int level;
 
     // 0 - Empty
     // 5 - Pellet
@@ -90,13 +93,23 @@ public class GameManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-
-        var activeGhosts = GameObject.FindGameObjectsWithTag ("Ghost");
-        if (activeGhosts == null || activeGhosts.Length <= 0) {
-            if (SceneManager.GetActiveScene ().name != "Status") {
-                SceneManager.LoadScene ("Status");
+        if (SceneManager.GetActiveScene().name == "Game")
+        {
+            int pelletCount = 0;
+            var pelletChilds = pellets.transform;
+            foreach(Transform child in pelletChilds)
+            {
+                if(child != null)
+                {
+                    pelletCount++;
+                }
             }
-
+            if (pelletCount <= 230)
+            {
+                SceneManager.LoadScene("Game");
+                NextLevel(2f);
+                //SceneManager.LoadScene("Status");
+            }
         }
 
     }
@@ -123,8 +136,31 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void resetGhosts () {
+    public void NextLevel(float duration)
+    {
+        // how many seconds to pause the game
+        level += 1;
+        StartCoroutine(PauseGame(duration));
+        infoText.GetComponent<Text>().text = $"Level {level}";
 
+    }
+    public IEnumerator PauseGame(float pauseTime)
+    {
+        Debug.Log("Inside PauseGame()");
+        Time.timeScale = 0f;
+        float pauseEndTime = Time.realtimeSinceStartup + pauseTime;
+        while (Time.realtimeSinceStartup < pauseEndTime)
+        {
+            yield return 0;
+        }
+        Time.timeScale = 1f;
+        Debug.Log("Done with my pause");
+        PauseEnded();
+    }
+
+    public void PauseEnded()
+    {
+        infoText.GetComponent<Text>().text = "";
     }
 
 }
