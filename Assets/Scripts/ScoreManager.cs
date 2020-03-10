@@ -6,14 +6,16 @@ using UnityEngine.UI;
 public class ScoreManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    int score = 0;
+    public int score = 0;
     int highscore = 0;
+
     void Start()
     {
         if (PlayerPrefs.HasKey("highscore"))
         {
             highscore = PlayerPrefs.GetInt("highscore");
         }
+        score = FindObjectOfType<GameManager>().score;
         gameObject.GetComponent<Text>().text = $"score: {score}/{highscore}";
     }
 

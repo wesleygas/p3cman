@@ -10,9 +10,11 @@ public class Pacman : MonoBehaviour {
     public float blink = 0.5f;
     public int blinkRepetitions = 5;
     public ScoreManager scoreManager;
+    AudioManager audioManager;
     // Start is called before the first frame update
     void Start () {
         energized = false;
+        audioManager = FindObjectOfType<AudioManager>();
     }
 
     void Update () {
@@ -31,14 +33,22 @@ public class Pacman : MonoBehaviour {
 
         if (other.gameObject.tag == "Pellet") {
             scoreManager.AddScore (1);
+            audioManager.Play("pellet");
             Destroy(other.gameObject);
         } else if (other.gameObject.tag == "Energizer") {
             Destroy (other.gameObject);
             scoreManager.AddScore(5);
             StartCoroutine (Energizer ());
-        } else if (other.gameObject.tag == "Ghost") {
+        }else if (other.gameObject.tag == "Fruit")
+        {
+            Destroy(other.gameObject);
+            scoreManager.AddScore(50);
+            audioManager.Play("fruit");
+        }
+        else if (other.gameObject.tag == "Ghost") {
             if (energized) {
                 Destroy (other.gameObject);
+                audioManager.Play("pellet");
             } else {
                 var gameManager = GameObject.FindGameObjectsWithTag ("Cube") [0].gameObject;
                 gameManager.SendMessage ("pacmanHit");
@@ -48,9 +58,8 @@ public class Pacman : MonoBehaviour {
     }
 
     IEnumerator Energizer () {
-
+        Debug.Log("Starting enrgizer");
         float steady = delay - blink * blinkRepetitions;
-        AudioManager audioManager = FindObjectOfType<AudioManager>();
         audioManager.Play("Energized");
         audioManager.SetTempVolume("background", 0f);
         GameObject[] ghosts = GameObject.FindGameObjectsWithTag ("Ghost");
@@ -68,8 +77,7 @@ public class Pacman : MonoBehaviour {
         }
         energized = false;
         audioManager.Fade("Energized", 2f, 0f, true);
-        audioManager.SetTempVolume("background", 2f);
-        yield return null;
+        audioManager.SetTempVolume("background", 0.2f);
     }
 
     void ColorGhosts (GameObject[] ghosts, Color color) {

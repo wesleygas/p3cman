@@ -73,7 +73,6 @@ public class AudioManager : MonoBehaviour
         {
             StartCoroutine(StartFade(sound.source, target, duration, kill));
         }
-        sound.volume = target;
     }
 
     public void SetPitch(string name, float pitch)
@@ -108,6 +107,5 @@ public class AudioManager : MonoBehaviour
         }
         if (kill)
             audioSource.Stop();
-        yield break;
     }
 }

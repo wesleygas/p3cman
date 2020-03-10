@@ -12,11 +12,14 @@ public class GameManager : MonoBehaviour {
     public GameObject energizer;
     public GameObject ghosts;
     public GameObject ghost;
+    public GameObject fruit;
     public GameObject infoText;
     public int lives;
     public int defaultLives;
     private bool loaded;
     private int level;
+    public int score;
+    int fruitSpawnTime;
 
     // 0 - Empty
     // 5 - Pellet
@@ -24,8 +27,9 @@ public class GameManager : MonoBehaviour {
     // 8 - Wall
     // 9 - Ghost House Door
     public static GameManager instance;
+    Vector2[] fruitSpawns;
     public static readonly int[, ] map = { { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
-        { 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8 },
+        { 8, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 8 },
         { 8, 5, 8, 8, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 8, 8, 5, 8 },
         { 8, 6, 8, 8, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 8, 8, 6, 8 },
         { 8, 5, 8, 8, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 8, 8, 5, 8, 8, 8, 8, 5, 8 },
@@ -53,21 +57,27 @@ public class GameManager : MonoBehaviour {
         { 8, 5, 5, 5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 5, 5, 8 },
         { 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8 },
         { 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8 },
-        { 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8 },
+        { 8, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 8 },
         { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
     };
 
     void Start () {
+        fruitSpawnTime = 1;
+        fruitSpawns = new Vector2[4];
+        int fruitcount = 0;
         if (instance == null) instance = this;
         else {
             Destroy (gameObject);
         }
+        
         DontDestroyOnLoad (gameObject);
         lives = defaultLives;
         walls = new GameObject ("Walls");
         pellets = new GameObject ("Pellets");
         ghosts = new GameObject ("Ghosts");
         energizers = new GameObject ("Energizers");
+        level = 0;
+        score = 0;
         // Filling Maze
         for (int i = 0; i <= bound (0); i++) {
             for (int j = 0; j <= bound (1); j++) {
@@ -84,6 +94,14 @@ public class GameManager : MonoBehaviour {
 
                 } else if (map[i, j] == 5)
                     Instantiate (pellet, new Vector3 (x, 1, z), Quaternion.identity, pellets.transform);
+                else if (map[i,j] == 4)
+                {
+                    Instantiate(pellet, new Vector3(x, 1, z), Quaternion.identity, pellets.transform);
+                    fruitSpawns[fruitcount].x = x;
+                    fruitSpawns[fruitcount].y = z;
+                    fruitcount++;
+
+                }
                 else if (map[i, j] == 6)
                     Instantiate (energizer, new Vector3 (x, 1, z), Quaternion.identity, energizers.transform);
             }
@@ -95,23 +113,34 @@ public class GameManager : MonoBehaviour {
     void Update () {
         if (SceneManager.GetActiveScene().name == "Game")
         {
-            int pelletCount = 0;
-            var pelletChilds = pellets.transform;
-            foreach(Transform child in pelletChilds)
+            int pelletCount = GameObject.FindGameObjectsWithTag("Pellet").Length;
+            if (pelletCount <= 0)
             {
-                if(child != null)
-                {
-                    pelletCount++;
-                }
-            }
-            if (pelletCount <= 230)
-            {
-                SceneManager.LoadScene("Game");
                 NextLevel(2f);
-                //SceneManager.LoadScene("Status");
+                //SceneManager.LoadScene("Game");
+                
+                SceneManager.LoadScene("Status");
+            }else if(pelletCount == 220 && fruitSpawnTime == 1)
+            {
+                SpawnFruits();
+                fruitSpawnTime = 2;
+            }
+            else if (pelletCount == 50 && fruitSpawnTime == 2)
+            {
+                SpawnFruits();
+                fruitSpawnTime = 3;
             }
         }
 
+    }
+
+    void SpawnFruits()
+    {
+        foreach (Vector2 vec in fruitSpawns)
+        {
+            var fruta = Instantiate(fruit, new Vector3(vec.x, 1, vec.y), Quaternion.identity);
+            fruta.gameObject.tag = "Fruit";
+        }
     }
 
     public static int bound (int dimension) {
@@ -140,9 +169,9 @@ public class GameManager : MonoBehaviour {
     {
         // how many seconds to pause the game
         level += 1;
-        StartCoroutine(PauseGame(duration));
+        score = FindObjectOfType<ScoreManager>().score;
         infoText.GetComponent<Text>().text = $"Level {level}";
-
+        StartCoroutine(PauseGame(duration));
     }
     public IEnumerator PauseGame(float pauseTime)
     {
@@ -155,7 +184,7 @@ public class GameManager : MonoBehaviour {
         }
         Time.timeScale = 1f;
         Debug.Log("Done with my pause");
-        PauseEnded();
+        //PauseEnded();
     }
 
     public void PauseEnded()
